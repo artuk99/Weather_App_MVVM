@@ -1,8 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:weather_app/test/error_listener.dart';
@@ -51,9 +49,10 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = Provider.of<WeatherViewModel>(context);
+    // final model = Provider.of<WeatherViewModel>(context);
+    final _isFirstLoad = context.select((WeatherViewModel model) => model.isFirstLoad);
 
-    if (model.isFirstLoad) {
+    if (_isFirstLoad) {
       return Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -68,7 +67,11 @@ class Body extends StatelessWidget {
       );
     }
     return SlidingUpPanel(
-      color: Colors.transparent,
+      color: Colors.white.withOpacity(0.6),
+      border: Border.all(
+                width: 1.2,
+                color: Colors.white.withOpacity(0.6),
+              ),
       minHeight: 50,
       header: Container(
         width: MediaQuery.of(context).size.width,
@@ -82,6 +85,7 @@ class Body extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(12.0))),
         ),
       ),
+      boxShadow: const <BoxShadow>[BoxShadow(blurRadius: 1, color: Color.fromRGBO(255, 255, 255, 0.2))],
       borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25), topRight: Radius.circular(25)),
       panel: ClipRRect(
@@ -92,30 +96,22 @@ class Body extends StatelessWidget {
             sigmaX: 2.0,
             sigmaY: 2.0,
           ),
-          child: Container(
-            padding: const EdgeInsets.only(top: 50),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                width: 1.2,
-                color: Colors.white.withOpacity(0.6),
-              ),
-            ),
-            child: const DailyWeatherWidget(),
+          child: const Padding(
+            padding: EdgeInsets.only(top: 50),
+            child: DailyWeatherWidget(),
           ),
         ),
       ),
       body: Container(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         color: Colors.pink.shade200,
         child: ListView(
-          padding: const EdgeInsets.only(top: 0),
-          children: const [
+          children:  const [
             CurrentWeatherGifWidget(),
             HourlyWeatherChartWidget(),
             SizedBox(height: 15),
             CurrentWeatherWidget(),
-            SizedBox(height: 100)
+            SizedBox(height: 75),
           ],
         ),
       ),

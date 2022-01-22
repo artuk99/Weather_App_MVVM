@@ -39,7 +39,7 @@ class _DayWidget extends State<DayWidget> {
         });
       },
       child: AnimatedCrossFade(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 300),
         crossFadeState:
             _isDetail ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         layoutBuilder: (topChild, topChildKey, bottomChild, bottomChildKey) {
@@ -69,7 +69,7 @@ class _DayWidget extends State<DayWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      DateFormat.EEEE().format(DateTime.fromMillisecondsSinceEpoch(model.daysName[widget.i] * 1000)),
+                      DateFormat.EEEE().format(DateTime.fromMillisecondsSinceEpoch(model.daysWeather[widget.i].name * 1000)),
                       style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -77,7 +77,7 @@ class _DayWidget extends State<DayWidget> {
                       ),
                     ),
                     Text(
-                      DateFormat.Md().format(DateTime.fromMillisecondsSinceEpoch(model.daysName[widget.i] * 1000)),
+                      DateFormat.Md().format(DateTime.fromMillisecondsSinceEpoch(model.daysWeather[widget.i].name * 1000)),
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.bold,
@@ -94,13 +94,13 @@ class _DayWidget extends State<DayWidget> {
                   Row(
                     children: [
                       Image.asset(
-                        'assets/images/${model.daysIcons[widget.i]}',
+                        'assets/images/${model.daysWeather[widget.i].icons}',
                         width: 40,
                         height: 40,
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        '${model.daysTemp[widget.i]}°C',
+                        '${model.daysWeather[widget.i].temp}°C',
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -110,7 +110,7 @@ class _DayWidget extends State<DayWidget> {
                     ],
                   ),
                   Text(
-                    model.daysWeatherDescription[widget.i],
+                    model.daysWeather[widget.i].weatherDescription,
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _DayWidget extends State<DayWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    DateFormat.EEEE().format(DateTime.fromMillisecondsSinceEpoch(model.daysName[widget.i] * 1000)),
+                    DateFormat.EEEE().format(DateTime.fromMillisecondsSinceEpoch(model.daysWeather[widget.i].name * 1000)),
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -152,7 +152,7 @@ class _DayWidget extends State<DayWidget> {
                     ),
                   ),
                   Text(
-                    DateFormat.Md().format(DateTime.fromMillisecondsSinceEpoch(model.daysName[widget.i] * 1000)),
+                    DateFormat.Md().format(DateTime.fromMillisecondsSinceEpoch(model.daysWeather[widget.i].name * 1000)),
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.bold,
@@ -163,12 +163,12 @@ class _DayWidget extends State<DayWidget> {
                   Row(
                     children: [
                       Image.asset(
-                          './assets/images/${model.daysIcons[widget.i]}',
+                          './assets/images/${model.daysWeather[widget.i].icons}',
                           height: 30,
                           width: 30),
                       const SizedBox(width: 5),
                       Text(
-                        '${model.daysTemp[widget.i]}°C',
+                        '${model.daysWeather[widget.i].temp}°C',
                         style: const TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -178,7 +178,7 @@ class _DayWidget extends State<DayWidget> {
                     ],
                   ),
                   Text(
-                    model.daysWeatherDescription[widget.i],
+                    model.daysWeather[widget.i].weatherDescription,
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontWeight: FontWeight.bold,
@@ -196,13 +196,13 @@ class _DayWidget extends State<DayWidget> {
                           WeatherIndicator(
                             assetPath: 'humidity.png',
                             name: 'Humidity',
-                            text: '${model.daysHumidity[widget.i]} %',
+                            text: '${model.daysWeather[widget.i].humidity} %',
                           ),
                           const SizedBox(height: 8),
                           WeatherIndicator(
                             assetPath: 'cloudess.png',
                             name: 'Cloudiness',
-                            text: '${model.daysCloudness[widget.i]} %',
+                            text: '${model.daysWeather[widget.i].cloudness} %',
                           ),
                         ],
                       ),
@@ -212,13 +212,13 @@ class _DayWidget extends State<DayWidget> {
                           WeatherIndicator(
                             assetPath: 'uvi.png',
                             name: 'UV-index',
-                            text: model.daysUvi[widget.i],
+                            text: model.daysWeather[widget.i].uvi,
                           ),
                           const SizedBox(height: 8),
                           WeatherIndicator(
                             assetPath: 'dewPoint.png',
                             name: 'Atmospheric\ntemperature',
-                            text: '${model.daysDewPoints[widget.i]} °C',
+                            text: '${model.daysWeather[widget.i].dewPoints} °C',
                           ),
                         ],
                       ),
@@ -228,13 +228,13 @@ class _DayWidget extends State<DayWidget> {
                           WeatherIndicator(
                             assetPath: 'pressure.png',
                             name: 'Pressure',
-                            text: '${model.daysPressure[widget.i]} hPa',
+                            text: '${model.daysWeather[widget.i].pressure} hPa',
                           ),
                           const SizedBox(height: 8),
                           WeatherIndicator(
                             assetPath: 'precipitation.png',
                             name: 'Probability of\nprecipitation',
-                            text: '${model.daysPrecipitation[widget.i]} %',
+                            text: '${model.daysWeather[widget.i].precipitation} %',
                           ),
                         ],
                       ),
@@ -243,8 +243,8 @@ class _DayWidget extends State<DayWidget> {
                 ],
               ),
               const Positioned(
-                top: 10,
-                right: 15,
+                top: 0,
+                right: 0,
                 child: Icon(Icons.arrow_drop_up, color: Colors.grey),
               ),
             ],

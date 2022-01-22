@@ -33,40 +33,40 @@ class HourlyWeatherChartWidget extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 1300 / 25 / 2),
-                for (int i = 0; i < 24; i++)
+                for (int i = 1; i < 25; i++)
                   Column(
                     children: [
                       SizedBox(
                         height: 20,
                         width: 1300 / 25,
-                        child: model.hourlyWingDirection.isNotEmpty
-                            ? Transform.rotate(
-                                angle: model.hourlyWingDirection[i],
+                        child: model.hourlyWeather[i].wingDirection == null
+                            ? const Icon(Icons.error)
+                            : Transform.rotate(
+                                angle: model.hourlyWeather[i].wingDirection!,
                                 child: Image.asset(
                                   'assets/wind/wind_direction.png',
                                   width: 20,
                                   height: 20,
                                 ),
-                              )
-                            : const Icon(Icons.error),
+                              ),
                       ),
                       const SizedBox(height: 3),
-                      Text(
-                        model.hourlyWindSpeed[i],
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
+                      if (model.hourlyWeather[i].windSpeed != null)
+                        Text(
+                          model.hourlyWeather[i].windSpeed!,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 5),
                       SizedBox(
-                        height: 35,
-                        width: 1300 / 25,
-                        child: model.hourlyIcons.isNotEmpty
-                            ? Image.asset(
-                                'assets/images/' + model.hourlyIcons[i])
-                            : const Icon(Icons.question_answer),
-                      ),
+                          height: 35,
+                          width: 1300 / 25,
+                          child: model.hourlyWeather[i].icons == null
+                              ? const Icon(Icons.question_answer)
+                              : Image.asset('assets/images/' +
+                                  model.hourlyWeather[i].icons!)),
                     ],
                   ),
                 const SizedBox(width: 1300 / 25 / 2),
@@ -157,7 +157,7 @@ class HourlyWeatherChartWidget extends StatelessWidget {
             //             orElse: () => 0) *
             //         1000,
             //     isUtc: true) /*times[value.toInt() - 1] * 1000)*/;
-            return model.hourlyTitle[value.toInt()];
+            return model.hourlyWeather[value.toInt()].title;
           },
         ),
         leftTitles: SideTitles(showTitles: false),

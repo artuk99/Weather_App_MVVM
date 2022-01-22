@@ -8,7 +8,7 @@ class CurrentWeatherGifWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = Provider.of<WeatherViewModel>(context);
+    final _gif = context.select((WeatherViewModel model) => model.currenWeather.imageAsset);
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -17,7 +17,7 @@ class CurrentWeatherGifWidget extends StatelessWidget {
           // margin = reservedSize + ((chart height - reservedSize) / maxY)
           //margin: const EdgeInsetsDirectional.only(bottom: 110),
           width: MediaQuery.of(context).size.width,
-          child: Image.asset('./assets/gifs/${model.currentImageAsset}',
+          child: Image.asset('./assets/gifs/$_gif',
               fit: BoxFit.fill),
         ),
         const CustomLineWidget(),

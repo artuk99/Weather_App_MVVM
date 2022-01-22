@@ -12,7 +12,7 @@ class OpenWeatherMapApiClient {
     'lon': '',
     'exclude': 'minutely,alerts',
     'units': 'metric',
-    'appid': '98c1dfb50c2e7d902b77e69667bbf1c1'
+    'appid': ''
   };
 
   Future<HourlyWeather> getWeather(

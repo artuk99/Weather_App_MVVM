@@ -27,9 +27,6 @@ class MyApp extends StatelessWidget {
         },
         debugShowCheckedModeBanner: false,
         title: 'Weather App',
-        theme: ThemeData(
-          primarySwatch: Colors.red,
-        ),
       ),
     );
   }

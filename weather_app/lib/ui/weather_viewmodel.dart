@@ -12,39 +12,67 @@ import 'package:weather_app/services/connection.dart';
 import 'package:weather_app/services/location.dart';
 import 'package:weather_app/test/error_listener.dart';
 
-// enum _WeatherViewModelStates {  }
-//
+class CurrentWeatherData {
+  String temp = '';
+  String icon = '';
+  String weatherDescription = '';
+  String cloudness = '';
+  String pressure = '';
+  String imageAsset = '';
+  String uvi = '';
+  String visibility = '';
+  String dewPoint = '';
+  String humidity = '';
+}
+
+class HourlyWeatherData {
+  final String title;
+  final String? icons;
+  final double? wingDirection;
+  final String? windSpeed;
+
+  HourlyWeatherData(
+      {required this.title, this.icons, this.wingDirection, this.windSpeed});
+}
+
+class DaysWeatherData {
+  final String icons;
+  final String temp;
+  final int name;
+  final String humidity;
+  final String pressure;
+  final String cloudness;
+  final String dewPoints;
+  final String precipitation;
+  final String uvi;
+  final int windDirection;
+  final String windSpeed;
+  final String weatherDescription;
+
+  DaysWeatherData(
+      {required this.icons,
+      required this.temp,
+      required this.name,
+      required this.humidity,
+      required this.pressure,
+      required this.cloudness,
+      required this.dewPoints,
+      required this.precipitation,
+      required this.uvi,
+      required this.windDirection,
+      required this.windSpeed,
+      required this.weatherDescription});
+}
 
 class WeatherViewModel extends ChangeNotifier with ErrorNotifierMixin {
-  String currenTemp = '';
-  String currentIcon = '';
-  String currenWeatherDescription = '';
-  String currentCloudness = '';
-  String currentPressure = '';
-  String currentImageAsset = '';
-  String currentUvi = '';
-  String currentVisibility = '';
-  String curretnDewPoint = '';
-  String currentHumidity = '';
+  final currenWeather = CurrentWeatherData();
+  final List<HourlyWeatherData> hourlyWeather = [];
+  final List<DaysWeatherData> daysWeather = [];
 
-  List<String> hourlyTitle = [];
-  List<String> hourlyIcons = [];
-  List<double> hourlyWingDirection = [];
-  List<String> hourlyWindSpeed = [];
-
-  List<String> daysIcons = [];
-  List<String> daysTemp = [];
-  List<int> daysName = [];
-  List<String> daysHumidity = [];
-  List<String> daysPressure = [];
-  List<String> daysCloudness = [];
-  List<String> daysDewPoints = [];
-  List<String> daysPrecipitation = [];
-  List<String> daysUvi = [];
-  List<int> daysWindDirection = [];
-  List<String> daysWindSpeed = [];
-  List<String> daysWeatherDescription = [];
-  List<String> daysWindGust = [];
+  // List<String> hourlyTitle = [];
+  // List<String> hourlyIcons = [];
+  // List<double> hourlyWingDirection = [];
+  // List<String> hourlyWindSpeed = [];
 
   final _connectionService = Connection();
   final _locationService = UserLocation();
@@ -70,50 +98,30 @@ class WeatherViewModel extends ChangeNotifier with ErrorNotifierMixin {
     final HourlyWeather response;
 
     response = await _apiClient.getWeather(lat: lat, lon: lon);
-
     _clear();
-
-    currenTemp = response.current.temp.round().toString();
-    currentIcon = response.current.weather.first.icon;
-    currenWeatherDescription = response.current.weather.first.description;
-    currentCloudness = response.current.clouds.toString();
-    currentPressure = response.current.pressure.toString();
-    currentImageAsset = _getImagePath(response.current.weather.first.icon);
-    currentUvi = response.current.uvi.toString();
-    currentVisibility = response.current.visibility.toString();
-    curretnDewPoint = response.current.dewPoint.toString();
-    currentHumidity = response.current.humidity.toString();
+    _makeCurrentWeatherData(response);
 
     _chartMinY = response.hourly[0].temp.roundToDouble();
     _chartMaxY = response.hourly[0].temp.roundToDouble();
     // _chartData[-1] = FlSpot(0, response.hourly[0].temp.roundToDouble());
     _chartSpots.add(FlSpot(0, response.hourly[0].temp.roundToDouble()));
-    hourlyTitle.add('');
+    hourlyWeather.add(HourlyWeatherData(title: ''));
 
     for (var i in response.hourly) {
       if (_chartSpots.length < 25) {
+        hourlyWeather.add(_makeHourlyWeatherData(i, response.timezoneOffset));
+
         // _chartData[i.dt + response.timezoneOffset] =
         // FlSpot(_chartData.length.toDouble(), i.temp.roundToDouble());
         _chartSpots
             .add(FlSpot(_chartSpots.length.toDouble(), i.temp.roundToDouble()));
-
-        final time = DateTime.fromMillisecondsSinceEpoch(
-            (i.dt + response.timezoneOffset) * 1000,
-            isUtc: true);
-        final title = DateFormat.Hm().format(time).toString();
-        hourlyTitle.add(title);
-        hourlyIcons.add(i.weather.first.icon);
         if (_chartMaxY! < i.temp) _chartMaxY = i.temp;
         if (_chartMinY! > i.temp) _chartMinY = i.temp;
-
-        final angle = (180 + i.windDeg) * math.pi / 180;
-        hourlyWingDirection.add(angle);
-        hourlyWindSpeed.add(i.windSpeed.toString());
       }
     }
     // _chartData[1] = FlSpot(25, response.hourly[23].temp.roundToDouble());
     _chartSpots.add(FlSpot(25, response.hourly[23].temp.roundToDouble()));
-    hourlyTitle.add('');
+    hourlyWeather.add(HourlyWeatherData(title: ''));
 
     for (var i in _chartSpots) {
       final sizeOne = (85) / (_chartMaxY! - _chartMinY! + 3);
@@ -123,18 +131,7 @@ class WeatherViewModel extends ChangeNotifier with ErrorNotifierMixin {
     }
 
     for (var d in response.daily) {
-      daysIcons.add(d.weather.first.icon);
-      daysTemp.add(d.temp.day.round().toString());
-      daysName.add(d.dt);
-      daysHumidity.add(d.humidity.toString());
-      daysPressure.add(d.pressure.toString());
-      daysCloudness.add(d.clouds.toString());
-      daysDewPoints.add(d.dewPoint.toString());
-      daysPrecipitation.add((d.pop * 100).toInt().toString());
-      daysUvi.add(d.uvi.toString());
-      daysWindDirection.add(d.windDeg);
-      daysWindSpeed.add(d.windSpeed.round().toString());
-      daysWeatherDescription.add(d.weather.first.description);
+      daysWeather.add(_makeDaysWeatherData(d));
     }
   }
 
@@ -224,37 +221,52 @@ class WeatherViewModel extends ChangeNotifier with ErrorNotifierMixin {
     }
   }
 
+  void _makeCurrentWeatherData(HourlyWeather weather) {
+    currenWeather.cloudness = weather.current.clouds.toString();
+    currenWeather.temp = weather.current.temp.round().toString();
+    currenWeather.humidity = weather.current.humidity.toString();
+    currenWeather.icon = weather.current.weather.first.icon;
+    currenWeather.imageAsset =
+        _getImagePath(weather.current.weather.first.icon);
+    currenWeather.pressure = weather.current.pressure.toString();
+    currenWeather.uvi = weather.current.uvi.toString();
+    currenWeather.visibility = weather.current.visibility.toString();
+    currenWeather.weatherDescription =
+        weather.current.weather.first.description;
+    currenWeather.dewPoint = weather.current.dewPoint.toString();
+  }
+
+  DaysWeatherData _makeDaysWeatherData(Daily weather) {
+    return DaysWeatherData(
+        cloudness: weather.clouds.toString(),
+        dewPoints: weather.dewPoint.toString(),
+        humidity: weather.humidity.toString(),
+        icons: weather.weather.first.icon,
+        name: weather.dt,
+        precipitation: (weather.pop * 100).toInt().toString(),
+        pressure: weather.pressure.toString(),
+        temp: weather.temp.day.round().toString(),
+        uvi: weather.uvi.toString(),
+        weatherDescription: weather.weather.first.description,
+        windDirection: weather.windDeg,
+        windSpeed: weather.windSpeed.round().toString());
+  }
+
+  HourlyWeatherData _makeHourlyWeatherData(Current weather, int timezone) {
+    final time = DateTime.fromMillisecondsSinceEpoch(
+        (weather.dt + timezone) * 1000,
+        isUtc: true);
+    final title = DateFormat.Hm().format(time).toString();
+    final angle = (180 + weather.windDeg) * math.pi / 180;
+    return HourlyWeatherData(
+        icons: weather.weather.first.icon,
+        title: title,
+        windSpeed: weather.windSpeed.toString(),
+        wingDirection: angle);
+  }
+
   void _clear() {
-    currenTemp = '';
-    currentIcon = '';
-    currenWeatherDescription = '';
-    currentCloudness = '';
-    currentPressure = '';
-    currentImageAsset = '';
-    currentUvi = '';
-    currentVisibility = '';
-    curretnDewPoint = '';
-    currentHumidity = '';
-
     _chartSpots.clear();
-    hourlyTitle.clear();
     _chartPaddings.clear();
-    hourlyIcons.clear();
-    hourlyWingDirection.clear();
-    hourlyWindSpeed.clear();
-
-    daysIcons.clear();
-    daysTemp.clear();
-    daysName.clear();
-    daysHumidity.clear();
-    daysPressure.clear();
-    daysCloudness.clear();
-    daysDewPoints.clear();
-    daysPrecipitation.clear();
-    daysUvi.clear();
-    daysWindDirection.clear();
-    daysWindSpeed.clear();
-    daysWeatherDescription.clear();
-    daysWindGust.clear();
   }
 }
